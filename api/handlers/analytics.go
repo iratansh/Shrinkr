@@ -1,17 +1,23 @@
 package handlers
 
-// GET /analytics/:code
-//
-// Response:
-//   {
-//     "code": "aB3xYz",
-//     "total_clicks": 1234,
-//     "by_day": [...],
-//     "by_country": [...]
-//   }
-//
-// Reads from Postgres aggregated tables populated by the worker.
+import (
+	"net/http"
 
-// Analytics is the gin.HandlerFunc for GET /analytics/:code.
-// TODO: implement using gin.Context once dependencies are wired.
-func Analytics() {}
+	"github.com/gin-gonic/gin"
+)
+
+// Analytics returns aggregate click counts for a short code.
+func (h *Handler) Analytics(c *gin.Context) {
+	code := c.Param("code")
+
+	count, err := h.pg.GetClickCount(c.Request.Context(), code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch analytics"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":         code,
+		"total_clicks": count,
+	})
+}

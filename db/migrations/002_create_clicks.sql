@@ -1,10 +1,12 @@
-CREATE TABLE clicks (
-    id          SERIAL PRIMARY KEY,
-    short_code  VARCHAR(10) NOT NULL,
+CREATE TABLE IF NOT EXISTS clicks (
+    id          BIGSERIAL PRIMARY KEY,
+    code        VARCHAR(16) NOT NULL REFERENCES urls(code) ON DELETE CASCADE,
+    clicked_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    ip          INET,
     user_agent  TEXT,
-    ip_address  VARCHAR(45),
     referrer    TEXT,
-    clicked_at  TIMESTAMP DEFAULT NOW()
+    country     VARCHAR(2)
 );
 
-CREATE INDEX idx_clicks_short_code ON clicks(short_code);
+CREATE INDEX IF NOT EXISTS idx_clicks_code ON clicks(code);
+CREATE INDEX IF NOT EXISTS idx_clicks_clicked_at ON clicks(clicked_at DESC);
