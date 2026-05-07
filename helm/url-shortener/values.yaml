@@ -1,0 +1,43 @@
+image:
+  registry: docker.io
+  repository: shrinkr
+  pullPolicy: IfNotPresent
+  tag: latest
+
+api:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+worker:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+config:
+  httpPort: "8080"
+  redisAddr: "redis:6379"
+  awsRegion: "us-east-1"
+  baseShortUrl: "http://localhost"
+  shortCodeBytes: "6"
+
+secrets:
+  postgresDsn: ""
+  redisPassword: ""
+  sqsQueueUrl: ""
+  awsAccessKeyId: ""
+  awsSecretAccessKey: ""

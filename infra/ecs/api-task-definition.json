@@ -1,0 +1,38 @@
+{
+  "family": "shrinkr-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/shrinkr-api-task",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/shrinkr/api:latest",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8080, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "HTTP_PORT", "value": "8080" },
+        { "name": "AWS_REGION", "value": "us-east-1" },
+        { "name": "BASE_SHORT_URL", "value": "https://shrinkr.example.com" },
+        { "name": "SHORT_CODE_BYTES", "value": "7" }
+      ],
+      "secrets": [
+        { "name": "REDIS_ADDR",     "valueFrom": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/shrinkr/redis_addr" },
+        { "name": "POSTGRES_DSN",   "valueFrom": "arn:aws:secretsmanager:us-east-1:<ACCOUNT_ID>:secret:shrinkr/postgres_dsn" },
+        { "name": "SQS_QUEUE_URL",  "valueFrom": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/shrinkr/sqs_queue_url" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/shrinkr-api",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "api"
+        }
+      }
+    }
+  ]
+}

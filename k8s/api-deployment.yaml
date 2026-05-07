@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shrinkr-api
+  labels:
+    app: shrinkr-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shrinkr-api
+  template:
+    metadata:
+      labels:
+        app: shrinkr-api
+    spec:
+      containers:
+        - name: api
+          image: shrinkr/api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: shrinkr-config
+            - secretRef:
+                name: shrinkr-secrets
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"

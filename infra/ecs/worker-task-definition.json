@@ -1,0 +1,31 @@
+{
+  "family": "shrinkr-worker",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/shrinkr-worker-task",
+  "containerDefinitions": [
+    {
+      "name": "worker",
+      "image": "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/shrinkr/worker:latest",
+      "essential": true,
+      "environment": [
+        { "name": "AWS_REGION", "value": "us-east-1" }
+      ],
+      "secrets": [
+        { "name": "POSTGRES_DSN",  "valueFrom": "arn:aws:secretsmanager:us-east-1:<ACCOUNT_ID>:secret:shrinkr/postgres_dsn" },
+        { "name": "SQS_QUEUE_URL", "valueFrom": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/shrinkr/sqs_queue_url" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/shrinkr-worker",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "worker"
+        }
+      }
+    }
+  ]
+}

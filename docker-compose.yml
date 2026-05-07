@@ -1,0 +1,56 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shrinkr
+      POSTGRES_PASSWORD: shrinkr
+      POSTGRES_DB: shrinkr
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+
+  # LocalStack provides a local SQS so the worker can run end-to-end without AWS.
+  localstack:
+    image: localstack/localstack:3
+    environment:
+      SERVICES: sqs
+      DEFAULT_REGION: us-east-1
+    ports: ["4566:4566"]
+
+  api:
+    build: ./api
+    depends_on: [redis, postgres, localstack]
+    environment:
+      HTTP_PORT: "8080"
+      REDIS_ADDR: redis:6379
+      POSTGRES_DSN: postgres://shrinkr:shrinkr@postgres:5432/shrinkr?sslmode=disable
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/shrinkr-clicks
+      BASE_SHORT_URL: http://localhost:8080
+      SHORT_CODE_BYTES: "6"
+    ports: ["8080:8080"]
+
+  worker:
+    build: ./worker
+    depends_on: [postgres, localstack]
+    environment:
+      POSTGRES_DSN: postgres://shrinkr:shrinkr@postgres:5432/shrinkr?sslmode=disable
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/shrinkr-clicks
+
+  frontend:
+    build: ./frontend
+    depends_on: [api]
+    ports: ["5173:80"]
+
+volumes:
+  pgdata:

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shrinkr-worker
+  labels:
+    app: shrinkr-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shrinkr-worker
+  template:
+    metadata:
+      labels:
+        app: shrinkr-worker
+    spec:
+      containers:
+        - name: worker
+          image: shrinkr/worker:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: shrinkr-config
+            - secretRef:
+                name: shrinkr-secrets
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "128Mi"

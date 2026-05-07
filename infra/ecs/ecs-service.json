@@ -1,0 +1,26 @@
+{
+  "cluster": "shrinkr",
+  "serviceName": "shrinkr-api",
+  "taskDefinition": "shrinkr-api",
+  "desiredCount": 2,
+  "launchType": "FARGATE",
+  "platformVersion": "LATEST",
+  "deploymentConfiguration": {
+    "minimumHealthyPercent": 50,
+    "maximumPercent": 200
+  },
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": ["subnet-aaaaaaaa", "subnet-bbbbbbbb"],
+      "securityGroups": ["sg-xxxxxxxx"],
+      "assignPublicIp": "ENABLED"
+    }
+  },
+  "loadBalancers": [
+    {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:<ACCOUNT_ID>:targetgroup/shrinkr-api/xxxxxxxx",
+      "containerName": "api",
+      "containerPort": 8080
+    }
+  ]
+}
