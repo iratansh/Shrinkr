@@ -32,9 +32,14 @@ func NewSQSPublisher(region, queueURL string) (*SQSPublisher, error) {
 	}, nil
 }
 
+// Enabled reports whether click events should be sent through SQS.
+func (s *SQSPublisher) Enabled() bool {
+	return s.QueueURL != "" && s.client != nil
+}
+
 // PublishClick serializes the click event and sends it to SQS.
 func (s *SQSPublisher) PublishClick(ctx context.Context, c *models.Click) error {
-	if s.QueueURL == "" || s.client == nil {
+	if !s.Enabled() {
 		return nil
 	}
 

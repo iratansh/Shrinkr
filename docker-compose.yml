@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: shrinkr
       POSTGRES_PASSWORD: shrinkr
       POSTGRES_DB: shrinkr
-    ports: ["5432:5432"]
+    ports: ["5433:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/migrations:/docker-entrypoint-initdb.d:ro

@@ -36,6 +36,16 @@ func (p *PostgresClient) InsertURL(ctx context.Context, u *models.URL) error {
 	return err
 }
 
+// InsertClick appends a click event directly.
+// This is used for local/dev mode when SQS is disabled.
+func (p *PostgresClient) InsertClick(ctx context.Context, c *models.Click) error {
+	_, err := p.pool.Exec(ctx, `
+		INSERT INTO clicks (code, clicked_at, ip, user_agent, referrer, country)
+		VALUES ($1, $2, NULLIF($3, '')::inet, $4, $5, $6)
+	`, c.Code, c.Timestamp, c.IP, c.UserAgent, c.Referrer, c.Country)
+	return err
+}
+
 // GetURL fetches a URL row by short code.
 func (p *PostgresClient) GetURL(ctx context.Context, code string) (*models.URL, error) {
 	var u models.URL

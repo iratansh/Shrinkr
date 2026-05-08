@@ -45,10 +45,18 @@ func (h *Handler) Redirect(c *gin.Context) {
 	}
 
 	go func() {
-		publishCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		clickCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		if err := h.sqs.PublishClick(publishCtx, click); err != nil {
-			log.Printf("publish click failed for code=%s: %v", code, err)
+
+		if h.sqs.Enabled() {
+			if err := h.sqs.PublishClick(clickCtx, click); err != nil {
+				log.Printf("publish click failed for code=%s: %v", code, err)
+			}
+			return
+		}
+
+		if err := h.pg.InsertClick(clickCtx, click); err != nil {
+			log.Printf("insert click failed for code=%s: %v", code, err)
 		}
 	}()
 
