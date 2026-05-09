@@ -431,24 +431,3 @@ Analytics:
 ```sh
 curl http://<alb-dns-name>/analytics/<code>
 ```
-
-## Known Limitations
-
-- Frontend is not deployed; it runs locally against the deployed API.
-- ECS task environment variables currently hold configuration directly. `POSTGRES_DSN` should move to AWS Secrets Manager or SSM Parameter Store.
-- Images currently use the `latest` tag. Production deployments should use immutable tags, such as git SHAs.
-- SQS does not yet have a documented DLQ/redrive policy in this repository.
-- Redis keys are not namespaced yet.
-- Analytics currently exposes only total click count.
-- There is no authentication or rate limiting.
-
-## Suggested Next Improvements
-
-1. Store `POSTGRES_DSN` in Secrets Manager.
-2. Split API and worker IAM roles so each role has least-privilege SQS permissions.
-3. Add an SQS dead-letter queue.
-4. Add structured logs and request IDs.
-5. Add API unit tests and integration tests for `/shorten`, `/:code`, and `/analytics/:code`.
-6. Add Redis key namespacing and configurable TTL.
-7. Add daily/country analytics aggregations.
-8. Replace `latest` image tags with git SHA tags.
