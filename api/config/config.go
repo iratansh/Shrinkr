@@ -15,6 +15,7 @@ type Config struct {
 	SQSQueueURL    string
 	AWSRegion      string
 	BaseShortURL   string
+	CORSOrigins    string
 	ShortCodeBytes int
 }
 
@@ -33,6 +34,7 @@ func Load() (*Config, error) {
 		SQSQueueURL:    os.Getenv("SQS_QUEUE_URL"),
 		AWSRegion:      getenv("AWS_REGION", "us-east-1"),
 		BaseShortURL:   getenv("BASE_SHORT_URL", "http://localhost:8080"),
+		CORSOrigins:    getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173"),
 		ShortCodeBytes: codeBytes,
 	}
 
