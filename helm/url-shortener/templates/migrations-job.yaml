@@ -1,0 +1,45 @@
+{{- if .Values.localDependencies.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "url-shortener.fullname" . }}-migrations
+  labels:
+    {{- include "url-shortener.labels" . | nindent 4 }}
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: {{ .Values.localDependencies.postgres.image }}
+          env:
+            - name: PGPASSWORD
+              value: shrinkr
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until pg_isready -h postgres -U shrinkr -d shrinkr; do
+                sleep 2
+              done
+              psql -h postgres -U shrinkr -d shrinkr -c "
+                CREATE TABLE IF NOT EXISTS urls (
+                  code VARCHAR(16) PRIMARY KEY,
+                  long_url TEXT NOT NULL,
+                  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                  expires_at TIMESTAMPTZ
+                );
+                CREATE INDEX IF NOT EXISTS idx_urls_created_at ON urls(created_at DESC);
+                CREATE TABLE IF NOT EXISTS clicks (
+                  id BIGSERIAL PRIMARY KEY,
+                  code VARCHAR(16) NOT NULL REFERENCES urls(code) ON DELETE CASCADE,
+                  clicked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                  ip INET,
+                  user_agent TEXT,
+                  referrer TEXT,
+                  country VARCHAR(2)
+                );
+                CREATE INDEX IF NOT EXISTS idx_clicks_code ON clicks(code);
+                CREATE INDEX IF NOT EXISTS idx_clicks_clicked_at ON clicks(clicked_at DESC);
+              "
+{{- end }}

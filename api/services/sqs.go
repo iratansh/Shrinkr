@@ -16,7 +16,7 @@ type SQSPublisher struct {
 }
 
 // NewSQSPublisher constructs an SQS publisher for the given queue URL.
-func NewSQSPublisher(region, queueURL string) (*SQSPublisher, error) {
+func NewSQSPublisher(region, queueURL, endpoint string) (*SQSPublisher, error) {
 	if queueURL == "" {
 		return &SQSPublisher{}, nil
 	}
@@ -28,7 +28,11 @@ func NewSQSPublisher(region, queueURL string) (*SQSPublisher, error) {
 
 	return &SQSPublisher{
 		QueueURL: queueURL,
-		client:   sqs.NewFromConfig(cfg),
+		client: sqs.NewFromConfig(cfg, func(o *sqs.Options) {
+			if endpoint != "" {
+				o.BaseEndpoint = awsString(endpoint)
+			}
+		}),
 	}, nil
 }
 

@@ -10,6 +10,7 @@ import (
 type Config struct {
 	PostgresDSN     string
 	SQSQueueURL     string
+	SQSEndpoint     string
 	AWSRegion       string
 	BatchSize       int32
 	WaitTimeSeconds int32
@@ -30,6 +31,7 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		PostgresDSN:     os.Getenv("POSTGRES_DSN"),
 		SQSQueueURL:     os.Getenv("SQS_QUEUE_URL"),
+		SQSEndpoint:     os.Getenv("SQS_ENDPOINT"),
 		AWSRegion:       getenv("AWS_REGION", "us-east-1"),
 		BatchSize:       batchSize,
 		WaitTimeSeconds: waitTimeSeconds,

@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: localstack-create-sqs
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-queue
+          image: amazon/aws-cli:2.15.57
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: test
+            - name: AWS_SECRET_ACCESS_KEY
+              value: test
+            - name: AWS_DEFAULT_REGION
+              value: us-east-1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until aws --endpoint-url=http://localstack:4566 sqs list-queues >/dev/null 2>&1; do
+                sleep 2
+              done
+              aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name shrinkr-clicks

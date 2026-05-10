@@ -25,6 +25,7 @@ func main() {
 	sqsConsumer, err := consumer.NewSQSConsumer(
 		cfg.SQSQueueURL,
 		cfg.AWSRegion,
+		cfg.SQSEndpoint,
 		cfg.BatchSize,
 		cfg.WaitTimeSeconds,
 		pgClient,

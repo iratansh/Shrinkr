@@ -364,6 +364,82 @@ npm run dev
 VITE_API_BASE=http://<alb-dns-name>
 ```
 
+## Local Kubernetes Orchestration
+
+The repository includes both raw Kubernetes manifests and a Helm chart for running the backend stack locally in minikube.
+
+The local Kubernetes setup includes:
+
+- API Deployment and Service
+- Worker Deployment
+- Redis StatefulSet and Service
+- PostgreSQL StatefulSet and Service
+- LocalStack Deployment and Service for SQS
+- Kubernetes Job to create the `shrinkr-clicks` SQS queue in LocalStack
+- Kubernetes Job to create PostgreSQL tables and indexes
+- ConfigMap and Secret wiring for API and worker environment variables
+
+### Build Images Into Minikube
+
+```sh
+minikube start
+eval "$(minikube docker-env)"
+
+docker build -t shrinkr/api:latest -f api/Dockerfile api
+docker build -t shrinkr/worker:latest -f worker/Dockerfile worker
+```
+
+### Run With Raw Manifests
+
+```sh
+kubectl apply -f k8s/postgres-service.yaml
+kubectl apply -f k8s/postgres-statefulset.yaml
+kubectl apply -f k8s/redis-service.yaml
+kubectl apply -f k8s/redis-statefulset.yaml
+kubectl apply -f k8s/localstack-service.yaml
+kubectl apply -f k8s/localstack-deployment.yaml
+
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secrets.yaml
+kubectl apply -f k8s/postgres-migrations-job.yaml
+kubectl apply -f k8s/localstack-sqs-job.yaml
+
+kubectl apply -f k8s/api-deployment.yaml
+kubectl apply -f k8s/api-service.yaml
+kubectl apply -f k8s/worker-deployment.yaml
+```
+
+Validate the API:
+
+```sh
+minikube service shrinkr-api --url
+curl "$(minikube service shrinkr-api --url)/healthz"
+```
+
+### Run With Helm
+
+```sh
+helm upgrade --install shrinkr ./helm/url-shortener
+kubectl get pods
+```
+
+Port-forward the API:
+
+```sh
+kubectl port-forward service/shrinkr-url-shortener-api 8080:80
+curl http://localhost:8080/healthz
+```
+
+The Helm chart defaults to local dependencies. Disable them when pointing the chart at managed AWS services:
+
+```sh
+helm upgrade --install shrinkr ./helm/url-shortener \
+  --set localDependencies.enabled=false \
+  --set config.redisAddr="<elasticache-endpoint>:6379" \
+  --set secrets.postgresDsn="<rds-postgres-dsn>" \
+  --set secrets.sqsQueueUrl="<sqs-queue-url>"
+```
+
 ## Deployment Notes
 
 ### ECR Images

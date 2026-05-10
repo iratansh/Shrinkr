@@ -27,7 +27,7 @@ func main() {
 		log.Fatalf("connect postgres: %v", err)
 	}
 
-	sqsClient, err := services.NewSQSPublisher(cfg.AWSRegion, cfg.SQSQueueURL)
+	sqsClient, err := services.NewSQSPublisher(cfg.AWSRegion, cfg.SQSQueueURL, cfg.SQSEndpoint)
 	if err != nil {
 		log.Fatalf("connect sqs: %v", err)
 	}

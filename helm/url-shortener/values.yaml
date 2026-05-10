@@ -32,12 +32,27 @@ config:
   httpPort: "8080"
   redisAddr: "redis:6379"
   awsRegion: "us-east-1"
-  baseShortUrl: "http://localhost"
+  sqsEndpoint: "http://localstack:4566"
+  baseShortUrl: "http://localhost:30080"
+  corsAllowedOrigins: "http://localhost:5173,http://127.0.0.1:5173"
   shortCodeBytes: "6"
+  sqsBatchSize: "10"
+  sqsWaitTimeSeconds: "20"
 
 secrets:
-  postgresDsn: ""
+  postgresDsn: "postgres://shrinkr:shrinkr@postgres:5432/shrinkr?sslmode=disable"
   redisPassword: ""
-  sqsQueueUrl: ""
-  awsAccessKeyId: ""
-  awsSecretAccessKey: ""
+  sqsQueueUrl: "http://localstack:4566/000000000000/shrinkr-clicks"
+  awsAccessKeyId: "test"
+  awsSecretAccessKey: "test"
+
+localDependencies:
+  enabled: true
+  postgres:
+    image: postgres:16-alpine
+    storage: 1Gi
+  redis:
+    image: redis:7-alpine
+    storage: 1Gi
+  localstack:
+    image: localstack/localstack:3

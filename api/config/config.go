@@ -13,6 +13,7 @@ type Config struct {
 	RedisPassword  string
 	PostgresDSN    string
 	SQSQueueURL    string
+	SQSEndpoint    string
 	AWSRegion      string
 	BaseShortURL   string
 	CORSOrigins    string
@@ -32,6 +33,7 @@ func Load() (*Config, error) {
 		RedisPassword:  os.Getenv("REDIS_PASSWORD"),
 		PostgresDSN:    os.Getenv("POSTGRES_DSN"),
 		SQSQueueURL:    os.Getenv("SQS_QUEUE_URL"),
+		SQSEndpoint:    os.Getenv("SQS_ENDPOINT"),
 		AWSRegion:      getenv("AWS_REGION", "us-east-1"),
 		BaseShortURL:   getenv("BASE_SHORT_URL", "http://localhost:8080"),
 		CORSOrigins:    getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173"),

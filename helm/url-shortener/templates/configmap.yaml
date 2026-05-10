@@ -8,5 +8,9 @@ data:
   HTTP_PORT: {{ .Values.config.httpPort | quote }}
   REDIS_ADDR: {{ .Values.config.redisAddr | quote }}
   AWS_REGION: {{ .Values.config.awsRegion | quote }}
+  SQS_ENDPOINT: {{ .Values.config.sqsEndpoint | quote }}
   BASE_SHORT_URL: {{ .Values.config.baseShortUrl | quote }}
+  CORS_ALLOWED_ORIGINS: {{ .Values.config.corsAllowedOrigins | quote }}
   SHORT_CODE_BYTES: {{ .Values.config.shortCodeBytes | quote }}
+  SQS_BATCH_SIZE: {{ .Values.config.sqsBatchSize | quote }}
+  SQS_WAIT_TIME_SECONDS: {{ .Values.config.sqsWaitTimeSeconds | quote }}

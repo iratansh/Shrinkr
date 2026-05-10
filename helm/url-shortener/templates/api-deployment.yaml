@@ -26,6 +26,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "url-shortener.fullname" . }}-config
+            - secretRef:
+                name: {{ include "url-shortener.fullname" . }}-secrets
           readinessProbe:
             httpGet:
               path: /healthz

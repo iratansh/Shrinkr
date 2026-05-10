@@ -17,14 +17,18 @@ type SQSConsumer struct {
 	processor       *Processor
 }
 
-func NewSQSConsumer(queueURL, region string, batchSize, waitTimeSeconds int32, pg *services.PostgresClient) (*SQSConsumer, error) {
+func NewSQSConsumer(queueURL, region, endpoint string, batchSize, waitTimeSeconds int32, pg *services.PostgresClient) (*SQSConsumer, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 	if err != nil {
 		return nil, err
 	}
 
 	return &SQSConsumer{
-		client:          sqs.NewFromConfig(cfg),
+		client: sqs.NewFromConfig(cfg, func(o *sqs.Options) {
+			if endpoint != "" {
+				o.BaseEndpoint = &endpoint
+			}
+		}),
 		queueURL:        queueURL,
 		batchSize:       batchSize,
 		waitTimeSeconds: waitTimeSeconds,
